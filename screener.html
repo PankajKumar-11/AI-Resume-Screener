@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Resume Screener</title>
+  <link rel="stylesheet" href="screener.css" />
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="container">
+    <h1>AI Resume Screener</h1>
+    <p>Upload your resume and let AI match you with the best job opportunities.</p>
+
+    <form id="resumeForm" enctype="multipart/form-data">
+      <div class="input-group">
+        <input type="text" name="name" placeholder="Full Name" required />
+      </div>
+
+      <div class="input-group">
+        <input type="email" name="email" placeholder="Email Address" required />
+      </div>
+
+      <div class="input-group file-upload">
+        <input type="file" name="resume" accept=".pdf,.docx" required />
+      </div>
+
+      <button type="submit">Upload Resume</button>
+    </form>
+
+    <footer>Powered by <strong>n8n</strong> • <strong>OpenAI</strong> • <strong>Airtable</strong></footer>
+  </div>
+
+  <div id="popup" class="popup">✅ Resume submitted successfully!</div>
+
+  <script>
+    document.getElementById("resumeForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const webhookUrl = "https://posttoxic-zanily-lara.ngrok-free.dev/webhook/ai-resume-upload"; // replace with your n8n webhook
+
+      try {
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          showPopup("✅ Resume submitted successfully!");
+          form.reset();
+        } else {
+          showPopup("❌ Something went wrong. Please try again.");
+        }
+      } catch (error) {
+        showPopup("⚠️ Network error. Please try again.");
+      }
+    });
+
+    function showPopup(message) {
+      const popup = document.getElementById("popup");
+      popup.textContent = message;
+      popup.classList.add("show");
+      setTimeout(() => popup.classList.remove("show"), 4000);
+    }
+  </script>
+</body>
+</html>
