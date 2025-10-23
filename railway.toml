@@ -1,0 +1,25 @@
+[build]
+builder = "DOCKERFILE"
+
+[deploy]
+startCommand = "n8n start"
+
+[variables]
+# Required for Railway deployment
+N8N_PORT = "5678"
+WEBHOOK_TUNNEL_URL = ""
+N8N_HOST = "0.0.0.0"
+
+# Basic Auth (optional but recommended)
+N8N_BASIC_AUTH_ACTIVE = "true"
+N8N_BASIC_AUTH_USER = "admin"
+N8N_BASIC_AUTH_PASSWORD = "yourpassword"
+
+# Encryption key for credentials
+N8N_ENCRYPTION_KEY = "generate_a_random_32_character_key_here"
+
+# Make sure n8n saves data on the Railway volume
+N8N_PATH = "/data"
+EXECUTIONS_DATA_SAVE_ON_ERROR = "all"
+EXECUTIONS_DATA_SAVE_ON_SUCCESS = "none"
+GENERIC_TIMEZONE = "Asia/Kolkata"
