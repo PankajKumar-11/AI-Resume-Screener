@@ -38,7 +38,8 @@
       e.preventDefault();
       const form = e.target;
       const formData = new FormData(form);
-      const webhookUrl = "https://ai-resume-screener-ukow.onrender.com/webhook/ai-resume-upload"; // replace with your n8n webhook
+      //const webhookUrl = "https://ai-resume-screener-ukow.onrender.com/webhook/ai-resume-upload"; // for public
+      const webhookUrl = "https://posttoxic-zanily-lara.ngrok-free.dev/webhook/ai-resume-upload"; // for local testing
 
       try {
         const response = await fetch(webhookUrl, {
