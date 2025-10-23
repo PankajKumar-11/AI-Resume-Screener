@@ -16,3 +16,6 @@ node_modules/
 
 # Logs
 *.log
+
+# Local config overrides (optional)
+config.local.js

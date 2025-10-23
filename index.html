@@ -33,13 +33,13 @@
 
   <div id="popup" class="popup">✅ Resume submitted successfully!</div>
 
+  <script src="config.js"></script>
   <script>
     document.getElementById("resumeForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const form = e.target;
       const formData = new FormData(form);
-      //const webhookUrl = "https://ai-resume-screener-ukow.onrender.com/webhook/ai-resume-upload"; // for public
-      const webhookUrl = "https://posttoxic-zanily-lara.ngrok-free.dev/webhook/ai-resume-upload"; // for local testing
+      const webhookUrl = (window.APP_CONFIG && window.APP_CONFIG.webhookUrl) || "YOUR_KEY_VALUE";
 
       try {
         const response = await fetch(webhookUrl, {

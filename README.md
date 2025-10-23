@@ -8,7 +8,7 @@ Upload a resume and forward it to an n8n workflow that extracts text, matches jo
    - Duplicate `.env.example` to `.env`
    - Replace every `YOUR_KEY_VALUE` with your real credentials (do NOT commit `.env`)
 2. Host n8n (Railway/Render/Docker/local) and get a public webhook URL
-3. In `index.html`, set `webhookUrl` to your n8n webhook endpoint
+3. Set your webhook URL using the helper script (see below)
 4. Open `index.html` in a browser and submit a test resume
 
 ## Secrets and security
@@ -49,3 +49,35 @@ Use `.env` (not committed). See `.env.example` for all keys:
 
 ---
 Maintained by Pankaj Kumar. Contributions welcome.
+
+## Webhook URL helper script (Windows)
+
+This repo includes a tiny helper that updates `config.js` with the correct webhook URL per environment.
+
+Usage from Command Prompt (cmd):
+
+```
+set-webhook.cmd prod https://your-host/webhook/ai-resume-upload
+```
+
+Supported environments: `local`, `prod`, `test`.
+
+Examples:
+
+```
+:: Local ngrok tunnel
+set-webhook.cmd local https://your-ngrok-id.ngrok-free.app/webhook/ai-resume-upload
+
+:: Production URL
+set-webhook.cmd prod https://your-domain.com/webhook/ai-resume-upload
+```
+
+How it works:
+- `config.js` holds placeholder URLs for `local`, `prod`, `test`.
+- The script safely replaces the chosen entry, keeping the file commit-safe.
+- `index.html` reads `window.APP_CONFIG.webhookUrl` from `config.js`.
+
+Advanced:
+- You can override at runtime via query params without editing files:
+  - `index.html?env=prod` selects the prod URL from `config.js`.
+  - `index.html?webhook=https%3A%2F%2Fexample.com%2Fhook` uses the provided URL directly.
