@@ -1,0 +1,18 @@
+# n8n workflow files with credentials
+AI Resume Screener.json
+
+# n8n data directory
+n8n_data/
+
+# Environment files
+.env
+.env.local
+
+# Railway config with secrets
+railway.toml
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
