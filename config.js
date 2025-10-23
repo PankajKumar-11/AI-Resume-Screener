@@ -19,7 +19,7 @@
 
   // Define URLs (fill these with real values locally using the helper script)
   const urls = {
-    local: 'YOUR_KEY_VALUE',
+    local: 'https://ai-resume-screener-production.up.railway.app/webhook/ai-resume-upload',
     prod: 'https://ai-resume-screener-production.up.railway.app/webhook/ai-resume-upload',
     test: 'YOUR_KEY_VALUE',
   };

@@ -41,6 +41,12 @@
       const formData = new FormData(form);
       const webhookUrl = (window.APP_CONFIG && window.APP_CONFIG.webhookUrl) || "YOUR_KEY_VALUE";
 
+      // Debug: Log the webhook URL being used
+      console.log("🔗 Using webhook URL:", webhookUrl);
+      console.log("📍 Environment:", window.APP_CONFIG?.env);
+      console.log("🌐 Hostname:", location.hostname);
+      console.log("📋 All URLs:", window.APP_CONFIG?.urls);
+
       try {
         const response = await fetch(webhookUrl, {
           method: "POST",
