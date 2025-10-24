@@ -2,7 +2,7 @@
 builder = "DOCKERFILE"
 
 [deploy]
-startCommand = "n8n start"
+startCommand = " n8n start"
 
 [variables]
 # Required for Railway deployment
@@ -23,3 +23,4 @@ N8N_PATH = "/data"
 EXECUTIONS_DATA_SAVE_ON_ERROR = "all"
 EXECUTIONS_DATA_SAVE_ON_SUCCESS = "none"
 GENERIC_TIMEZONE = "Asia/Kolkata"
+
