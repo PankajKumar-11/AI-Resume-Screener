@@ -78,6 +78,41 @@ html {
   }
 }
 
+/* ---- Site Logo ---- */
+.site-logo {
+  position: fixed;
+  top: 25px;
+  left: 25px;
+  z-index: 100;
+  animation: fadeInLeft 0.8s ease;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.site-logo img {
+  width: 110px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-logo:hover img {
+  transform: scale(1.08) translateY(-2px);
+  filter: drop-shadow(0 6px 20px rgba(192, 132, 252, 0.5));
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 /* ---- Background ---- */
 body {
   min-height: 100vh;
@@ -88,6 +123,13 @@ body {
   overflow-x: hidden;
   position: relative;
   padding: 20px;
+  padding-top: 100px; /* Space for logo on mobile */
+}
+
+@media (min-width: 769px) {
+  body {
+    padding-top: 20px; /* Reset padding on larger screens */
+  }
 }
 
 /* Galaxy background container */
@@ -536,9 +578,19 @@ footer strong {
 
 /* Tablets and small laptops */
 @media (max-width: 768px) {
+  .site-logo {
+    top: 18px;
+    left: 18px;
+  }
+
+  .site-logo img {
+    width: 90px;
+  }
+
   .container {
     padding: 35px 30px;
     max-width: 90%;
+    margin-top: 0;
   }
 
   .container h1 {
@@ -593,8 +645,18 @@ footer strong {
 
 /* Mobile devices */
 @media (max-width: 480px) {
+  .site-logo {
+    top: 15px;
+    left: 15px;
+  }
+
+  .site-logo img {
+    width: 75px;
+  }
+
   body {
     padding: 15px;
+    padding-top: 85px; /* Ensure space for logo */
   }
 
   /* Optimize background animations for mobile performance */
@@ -704,6 +766,15 @@ footer strong {
 
 /* Extra small devices (very small phones) */
 @media (max-width: 360px) {
+  .site-logo {
+    top: 12px;
+    left: 12px;
+  }
+
+  .site-logo img {
+    width: 65px;
+  }
+
   .container {
     padding: 25px 20px;
   }
@@ -747,8 +818,18 @@ footer strong {
 
 /* Landscape mode for mobile devices */
 @media (max-height: 600px) and (orientation: landscape) {
+  .site-logo {
+    top: 10px;
+    left: 10px;
+  }
+
+  .site-logo img {
+    width: 60px;
+  }
+
   body {
     padding: 10px;
+    padding-top: 10px;
   }
 
   .container {
