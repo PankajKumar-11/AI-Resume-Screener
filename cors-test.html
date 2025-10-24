@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CORS Test - AI Resume Screener</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1a2e;
+      color: white;
+    }
+    .test-box {
+      background: #2a2a4e;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    button {
+      background: #c084fc;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #a78bfa;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success { background: #10b981; }
+    .error { background: #ef4444; }
+    .info { background: #3b82f6; }
+  </style>
+</head>
+<body>
+  <h1>🧪 CORS & Webhook Test</h1>
+  
+  <div class="test-box">
+    <h2>Test Your Webhook</h2>
+    <p>This will help diagnose network issues on mobile vs desktop.</p>
+    
+    <input type="text" id="webhookUrl" 
+           value="https://ai-resume-screener-production.up.railway.app/webhook/ai-resume-upload" 
+           style="width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none;">
+    
+    <button onclick="testOptions()">1. Test OPTIONS (CORS Preflight)</button>
+    <button onclick="testPing()">2. Test POST (Simple Ping)</button>
+    <button onclick="testFile()">3. Test File Upload</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+  </div>
+
+  <script>
+    function addResult(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `result ${type}`;
+      div.textContent = message;
+      document.getElementById('results').appendChild(div);
+    }
+
+    function clearResults() {
+      document.getElementById('results').innerHTML = '';
+    }
+
+    async function testOptions() {
+      const url = document.getElementById('webhookUrl').value;
+      addResult('Testing OPTIONS request (CORS preflight)...', 'info');
+      
+      try {
+        const response = await fetch(url, {
+          method: 'OPTIONS',
+          headers: {
+            'Origin': window.location.origin,
+            'Access-Control-Request-Method': 'POST',
+            'Access-Control-Request-Headers': 'content-type',
+          },
+        });
+        
+        const headers = {};
+        response.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+        
+        addResult(`✅ OPTIONS Response:\nStatus: ${response.status}\nHeaders:\n${JSON.stringify(headers, null, 2)}`, 'success');
+        
+        // Check for required CORS headers
+        const corsOrigin = response.headers.get('Access-Control-Allow-Origin');
+        const corsMethods = response.headers.get('Access-Control-Allow-Methods');
+        
+        if (!corsOrigin) {
+          addResult('⚠️ Missing Access-Control-Allow-Origin header!', 'error');
+        }
+        if (!corsMethods) {
+          addResult('⚠️ Missing Access-Control-Allow-Methods header!', 'error');
+        }
+        
+      } catch (error) {
+        addResult(`❌ OPTIONS failed: ${error.message}`, 'error');
+      }
+    }
+
+    async function testPing() {
+      const url = document.getElementById('webhookUrl').value;
+      addResult('Testing POST request (simple ping)...', 'info');
+      
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          mode: 'cors',
+          signal: controller.signal,
+          body: JSON.stringify({ test: 'ping' }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        clearTimeout(timeoutId);
+        const text = await response.text();
+        
+        addResult(`✅ POST Response:\nStatus: ${response.status}\nBody: ${text.substring(0, 200)}`, 'success');
+        
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          addResult(`❌ Request timeout after 30 seconds`, 'error');
+        } else {
+          addResult(`❌ POST failed: ${error.message}`, 'error');
+        }
+      }
+    }
+
+    async function testFile() {
+      const url = document.getElementById('webhookUrl').value;
+      addResult('Testing file upload...', 'info');
+      
+      // Create a dummy file
+      const blob = new Blob(['Test resume content'], { type: 'text/plain' });
+      const file = new File([blob], 'test-resume.txt', { type: 'text/plain' });
+      
+      const formData = new FormData();
+      formData.append('resume', file);
+      formData.append('name', 'Test User');
+      formData.append('email', 'test@example.com');
+      
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          mode: 'cors',
+          signal: controller.signal,
+          body: formData,
+        });
+        
+        clearTimeout(timeoutId);
+        const text = await response.text();
+        
+        addResult(`✅ File Upload Response:\nStatus: ${response.status}\nBody: ${text.substring(0, 200)}`, 'success');
+        
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          addResult(`❌ File upload timeout after 30 seconds`, 'error');
+        } else {
+          addResult(`❌ File upload failed: ${error.message}`, 'error');
+        }
+      }
+    }
+
+    // Auto-detect user agent
+    window.addEventListener('load', () => {
+      const ua = navigator.userAgent;
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      addResult(`Device: ${isMobile ? '📱 Mobile' : '💻 Desktop'}\nUser Agent: ${ua}`, 'info');
+    });
+  </script>
+</body>
+</html>

@@ -120,35 +120,72 @@
       e.preventDefault();
       const formData = new FormData(form);
       const webhookUrl = (window.APP_CONFIG && window.APP_CONFIG.webhookUrl) || "YOUR_KEY_VALUE";
+      
+      // Get the file input
+      const fileInput = form.querySelector('input[type="file"]');
+      const file = fileInput.files[0];
+      
+      // Validate file exists
+      if (!file) {
+        showPopup("⚠️ Please select a resume file to upload.", true);
+        return;
+      }
+      
+      // Validate file size (max 10MB for mobile compatibility)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        showPopup("⚠️ File is too large. Please upload a resume smaller than 10MB.", true);
+        return;
+      }
 
       // Debug logs
       console.log("🔗 Using webhook URL:", webhookUrl);
       console.log("📍 Environment:", window.APP_CONFIG?.env);
       console.log("🌐 Hostname:", location.hostname);
       console.log("📋 All URLs:", window.APP_CONFIG?.urls);
+      console.log("📄 File:", file.name, "Size:", (file.size / 1024).toFixed(2), "KB");
 
       // Show loader with submission message
       showLoader();
       showPopup("📤 Resume submitted! Please wait while we process your application...", false, true);
       
       try {
+        // Create abort controller for timeout (30 seconds for mobile)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        
         const response = await fetch(webhookUrl, {
           method: "POST",
           body: formData,
+          mode: 'cors', // Explicitly enable CORS
+          signal: controller.signal,
+          // Don't set Content-Type header - browser will set it with boundary for multipart/form-data
         });
-
+        
+        clearTimeout(timeoutId);
         hideLoader();
 
         if (response.ok) {
           showPopup("✅ Resume submitted successfully! You will be informed through mail. Thank you for applying!", false);
           form.reset();
         } else {
-          showPopup("❌ Something went wrong. Please try again.", true);
+          const errorText = await response.text().catch(() => 'Unknown error');
+          console.error("Server response:", response.status, errorText);
+          showPopup(`❌ Server error (${response.status}). Please try again.`, true);
         }
       } catch (error) {
         hideLoader();
-        showPopup("⚠️ Network error. Please check your connection and try again.", true);
-        console.error("Upload error:", error);
+        
+        // Better error messages for different scenarios
+        if (error.name === 'AbortError') {
+          showPopup("⚠️ Upload timeout. Please check your internet connection and try again.", true);
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          showPopup("⚠️ Network error. Please check your connection and try again.", true);
+        } else {
+          showPopup("⚠️ Upload failed. Please try again.", true);
+        }
+        
+        console.error("Upload error:", error.name, error.message, error);
       }
     });
 
