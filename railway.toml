@@ -2,8 +2,7 @@
 builder = "DOCKERFILE"
 
 [deploy]
-startCommand = "chmod -R 777 /data && n8n start
-"
+startCommand = " n8n start"
 
 [variables]
 # Required for Railway deployment
