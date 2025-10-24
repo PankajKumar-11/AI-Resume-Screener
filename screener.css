@@ -78,8 +78,8 @@ html {
   }
 }
 
-/* ---- Site Logo ---- */
-.site-logo {
+/* ---- Site Brand ---- */
+.site-brand {
   position: fixed;
   top: 25px;
   left: 25px;
@@ -89,17 +89,35 @@ html {
   pointer-events: auto;
 }
 
-.site-logo img {
-  width: 150px;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+.brand-text {
+  font-family: 'Orbitron', 'Rajdhani', 'Exo 2', sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  background: linear-gradient(135deg, #c084fc 0%, #e879f9 50%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(192, 132, 252, 0.5);
+  filter: drop-shadow(0 4px 12px rgba(192, 132, 252, 0.4));
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
+  animation: glowPulse 3s ease-in-out infinite;
 }
 
-.site-logo:hover img {
-  transform: scale(1.08) translateY(-2px);
-  filter: drop-shadow(0 6px 20px rgba(192, 132, 252, 0.5));
+.site-brand:hover .brand-text {
+  transform: scale(1.1) translateY(-2px);
+  filter: drop-shadow(0 6px 25px rgba(192, 132, 252, 0.8));
+  letter-spacing: 0.25em;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    filter: drop-shadow(0 4px 12px rgba(192, 132, 252, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 4px 20px rgba(192, 132, 252, 0.7));
+  }
 }
 
 @keyframes fadeInLeft {
@@ -578,13 +596,13 @@ footer strong {
 
 /* Tablets and small laptops */
 @media (max-width: 768px) {
-  .site-logo {
+  .site-brand {
     top: 18px;
     left: 18px;
   }
 
-  .site-logo img {
-    width: 120px;
+  .brand-text {
+    font-size: 2.5rem;
   }
 
   .container {
@@ -645,18 +663,18 @@ footer strong {
 
 /* Mobile devices */
 @media (max-width: 480px) {
-  .site-logo {
+  .site-brand {
     top: 15px;
     left: 15px;
   }
 
-  .site-logo img {
-    width: 100px;
+  .brand-text {
+    font-size: 2rem;
   }
 
   body {
     padding: 15px;
-    padding-top: 85px; /* Ensure space for logo */
+    padding-top: 85px; /* Ensure space for brand */
   }
 
   /* Optimize background animations for mobile performance */
@@ -766,13 +784,13 @@ footer strong {
 
 /* Extra small devices (very small phones) */
 @media (max-width: 360px) {
-  .site-logo {
+  .site-brand {
     top: 12px;
     left: 12px;
   }
 
-  .site-logo img {
-    width: 90px;
+  .brand-text {
+    font-size: 1.75rem;
   }
 
   .container {
@@ -818,13 +836,13 @@ footer strong {
 
 /* Landscape mode for mobile devices */
 @media (max-height: 600px) and (orientation: landscape) {
-  .site-logo {
+  .site-brand {
     top: 10px;
     left: 10px;
   }
 
-  .site-logo img {
-    width: 80px;
+  .brand-text {
+    font-size: 1.5rem;
   }
 
   body {
