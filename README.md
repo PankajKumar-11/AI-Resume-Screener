@@ -17,10 +17,18 @@ An intelligent resume screening system that automatically analyzes uploaded resu
 - **Automated Email Notifications**: Sends status updates to both HR and candidates
 - **Beautiful UI**: Modern, responsive interface with animated background and custom ARS branding
 - **Real-time Processing**: Instant webhook trigger and processing via n8n workflow
+- **User-Friendly Feedback**: Clear submission confirmations and processing status updates
 
 ## 🚀 Live Demo
 
-Access the application at your Railway deployment URL.
+**Try it now:** [AI Resume Screener Live Demo](https://ai-resume-screenerr.netlify.app/)
+
+### How to Test:
+1. Visit the live demo link
+2. Upload a sample resume (PDF, DOC, or DOCX format)
+3. Click "Submit Resume"
+4. You'll see a confirmation message: "Resume submitted! You will be informed through mail."
+5. Check your email for the automated response with your application status
 
 ## 🏗️ Architecture
 
@@ -153,6 +161,13 @@ Create an Airtable base with the following structure:
 ### 1. Resume Upload
 Users visit the web interface and upload their resume (PDF/DOC/DOCX format).
 
+**User Experience:**
+- User selects resume file
+- Clicks "Submit Resume" button
+- **Instant feedback**: Popup message appears: "📤 Resume submitted! Please wait while we process your application..."
+- Loading animation displays with purple gradient theme
+- Form submission is confirmed immediately
+
 ### 2. Webhook Trigger
 Upon submission, the form sends the resume to the Railway-hosted webhook URL, initiating the n8n workflow.
 
@@ -180,6 +195,11 @@ Based on match scores, candidates are automatically sorted:
 Automated emails are sent via n8n:
 - **To HR Team**: Candidate summary with status and matched job
 - **To Candidate**: Personalized response based on selection status
+
+**Final User Feedback:**
+- Success message: "✅ Resume submitted successfully! You will be informed through mail. Thank you for applying!"
+- User knows exactly what to expect next
+- Professional confirmation improves trust and user experience
 
 ## 📁 Project Structure
 

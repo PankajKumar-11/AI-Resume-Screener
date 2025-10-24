@@ -521,6 +521,23 @@ footer strong {
   border-left-color: #ef4444;
 }
 
+.popup.processing {
+  border-left-color: #a78bfa;
+  background: linear-gradient(135deg, rgba(192, 132, 252, 0.15), rgba(168, 139, 250, 0.15));
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  animation: processingPulse 2s ease-in-out infinite;
+}
+
+@keyframes processingPulse {
+  0%, 100% {
+    box-shadow: 0 10px 40px rgba(168, 139, 250, 0.3);
+  }
+  50% {
+    box-shadow: 0 10px 60px rgba(192, 132, 252, 0.5);
+  }
+}
+
 /* ---- Loader Overlay ---- */
 .loader-overlay {
   position: fixed;
