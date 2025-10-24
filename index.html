@@ -50,6 +50,59 @@
 
   <script src="config.js"></script>
   <script>
+    // ---- Custom Cursor ---- 
+    const cursor = document.createElement('div');
+    const cursorDot = document.createElement('div');
+    cursor.className = 'cursor';
+    cursorDot.className = 'cursor-dot';
+    document.body.appendChild(cursor);
+    document.body.appendChild(cursorDot);
+
+    let mouseX = 0, mouseY = 0;
+    let cursorX = 0, cursorY = 0;
+    let dotX = 0, dotY = 0;
+
+    // Update mouse position
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      dotX = e.clientX;
+      dotY = e.clientY;
+
+      // Create trail effect
+      if (Math.random() > 0.7) {
+        const trail = document.createElement('div');
+        trail.className = 'cursor-trail';
+        trail.style.left = e.clientX + 'px';
+        trail.style.top = e.clientY + 'px';
+        document.body.appendChild(trail);
+        setTimeout(() => trail.remove(), 600);
+      }
+    });
+
+    // Smooth cursor follow animation
+    function animateCursor() {
+      // Smooth follow effect
+      cursorX += (mouseX - cursorX) * 0.15;
+      cursorY += (mouseY - cursorY) * 0.15;
+      
+      cursor.style.left = cursorX + 'px';
+      cursor.style.top = cursorY + 'px';
+      cursorDot.style.left = dotX + 'px';
+      cursorDot.style.top = dotY + 'px';
+      
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Hover effect on interactive elements
+    const hoverElements = document.querySelectorAll('button, input, a, .input-group');
+    hoverElements.forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+
+    // ---- Form Submission ----
     const form = document.getElementById("resumeForm");
     const submitBtn = form.querySelector('button[type="submit"]');
     const loaderOverlay = document.getElementById("loaderOverlay");
