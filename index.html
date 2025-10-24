@@ -32,41 +32,72 @@
   </div>
 
   <div id="popup" class="popup">✅ Resume submitted successfully!</div>
+  
+  <!-- Loader Overlay -->
+  <div id="loaderOverlay" class="loader-overlay">
+    <div>
+      <div class="loader"></div>
+      <div class="loader-text">Uploading your resume...</div>
+    </div>
+  </div>
 
   <script src="config.js"></script>
   <script>
-    document.getElementById("resumeForm").addEventListener("submit", async function (e) {
+    const form = document.getElementById("resumeForm");
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const loaderOverlay = document.getElementById("loaderOverlay");
+    
+    form.addEventListener("submit", async function (e) {
       e.preventDefault();
-      const form = e.target;
       const formData = new FormData(form);
       const webhookUrl = (window.APP_CONFIG && window.APP_CONFIG.webhookUrl) || "YOUR_KEY_VALUE";
 
-      // Debug: Log the webhook URL being used
+      // Debug logs
       console.log("🔗 Using webhook URL:", webhookUrl);
       console.log("📍 Environment:", window.APP_CONFIG?.env);
       console.log("🌐 Hostname:", location.hostname);
       console.log("📋 All URLs:", window.APP_CONFIG?.urls);
 
+      // Show loader
+      showLoader();
+      
       try {
         const response = await fetch(webhookUrl, {
           method: "POST",
           body: formData,
         });
 
+        hideLoader();
+
         if (response.ok) {
-          showPopup("✅ Resume submitted successfully!");
+          showPopup("✅ Resume submitted successfully!", false);
           form.reset();
         } else {
-          showPopup("❌ Something went wrong. Please try again.");
+          showPopup("❌ Something went wrong. Please try again.", true);
         }
       } catch (error) {
-        showPopup("⚠️ Network error. Please try again.");
+        hideLoader();
+        showPopup("⚠️ Network error. Please try again.", true);
+        console.error("Upload error:", error);
       }
     });
 
-    function showPopup(message) {
+    function showLoader() {
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+      loaderOverlay.classList.add('active');
+    }
+
+    function hideLoader() {
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+      loaderOverlay.classList.remove('active');
+    }
+
+    function showPopup(message, isError = false) {
       const popup = document.getElementById("popup");
       popup.textContent = message;
+      popup.classList.toggle('error', isError);
       popup.classList.add("show");
       setTimeout(() => popup.classList.remove("show"), 4000);
     }
