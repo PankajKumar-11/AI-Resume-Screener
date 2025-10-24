@@ -38,7 +38,7 @@
       </div>
 
       <div class="input-group file-upload">
-        <input type="file" name="resume" accept=".pdf,.docx" required />
+        <input type="file" id="resumeFile" name="resume" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required />
       </div>
 
       <button type="submit">Upload Resume</button>
@@ -116,13 +116,16 @@
     const submitBtn = form.querySelector('button[type="submit"]');
     const loaderOverlay = document.getElementById("loaderOverlay");
     
+    // Detect if mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
       const formData = new FormData(form);
       const webhookUrl = (window.APP_CONFIG && window.APP_CONFIG.webhookUrl) || "YOUR_KEY_VALUE";
       
       // Get the file input
-      const fileInput = form.querySelector('input[type="file"]');
+      const fileInput = document.getElementById('resumeFile');
       const file = fileInput.files[0];
       
       // Validate file exists
@@ -137,67 +140,99 @@
         showPopup("⚠️ File is too large. Please upload a resume smaller than 10MB.", true);
         return;
       }
+      
+      // Validate file type
+      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      const validExtensions = ['.pdf', '.doc', '.docx'];
+      const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+      
+      if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
+        showPopup("⚠️ Please upload a PDF or Word document (.pdf, .doc, .docx)", true);
+        return;
+      }
 
       // Debug logs
+      console.log("📱 Device:", isMobile ? "Mobile" : "Desktop");
       console.log("🔗 Using webhook URL:", webhookUrl);
       console.log("📍 Environment:", window.APP_CONFIG?.env);
       console.log("🌐 Hostname:", location.hostname);
+      console.log("🌐 Origin:", window.location.origin);
       console.log("📋 All URLs:", window.APP_CONFIG?.urls);
-      console.log("📄 File:", file.name, "Size:", (file.size / 1024).toFixed(2), "KB");
+      console.log("📄 File:", file.name, "Type:", file.type, "Size:", (file.size / 1024).toFixed(2), "KB");
 
       // Show loader with submission message
       showLoader();
       showPopup("📤 Resume submitted! Please wait while we process your application...", false, true);
       
-      try {
-        // Create abort controller for timeout (30 seconds for mobile)
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
-        
-        const response = await fetch(webhookUrl, {
-          method: "POST",
-          body: formData,
-          mode: 'cors', // Explicitly enable CORS
-          signal: controller.signal,
-          // Don't set Content-Type header - browser will set it with boundary for multipart/form-data
-        });
-        
-        clearTimeout(timeoutId);
+      // Use XMLHttpRequest for better mobile compatibility
+      uploadWithXHR(webhookUrl, formData);
+    });
+    
+    function uploadWithXHR(url, formData) {
+      const xhr = new XMLHttpRequest();
+      
+      // Timeout after 60 seconds (longer for mobile)
+      xhr.timeout = 60000;
+      
+      xhr.onload = function() {
         hideLoader();
-
-        if (response.ok) {
+        
+        if (xhr.status >= 200 && xhr.status < 300) {
+          console.log("✅ Upload successful:", xhr.status, xhr.responseText);
           showPopup("✅ Resume submitted successfully! You will be informed through mail. Thank you for applying!", false);
           form.reset();
         } else {
-          const errorText = await response.text().catch(() => 'Unknown error');
-          console.error("Server response:", response.status, errorText);
-          showPopup(`❌ Server error (${response.status}). Please try again.`, true);
+          console.error("❌ Server error:", xhr.status, xhr.statusText, xhr.responseText);
+          showPopup(`❌ Server error (${xhr.status}). Please try again.`, true);
         }
-      } catch (error) {
+      };
+      
+      xhr.onerror = function() {
         hideLoader();
-        
-        // Better error messages for different scenarios
-        if (error.name === 'AbortError') {
-          showPopup("⚠️ Upload timeout. Please check your internet connection and try again.", true);
-        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-          showPopup("⚠️ Network error. Please check your connection and try again.", true);
-        } else {
-          showPopup("⚠️ Upload failed. Please try again.", true);
+        console.error("❌ Network error:", xhr.status, xhr.statusText);
+        showPopup("⚠️ Network error. Please check your internet connection and try again.", true);
+      };
+      
+      xhr.ontimeout = function() {
+        hideLoader();
+        console.error("⏱️ Upload timeout");
+        showPopup("⚠️ Upload timeout. Your connection may be slow. Please try again.", true);
+      };
+      
+      xhr.onabort = function() {
+        hideLoader();
+        console.error("🚫 Upload aborted");
+        showPopup("⚠️ Upload was cancelled. Please try again.", true);
+      };
+      
+      // Progress tracking (optional - for future enhancement)
+      xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          console.log("📊 Upload progress:", percentComplete.toFixed(2) + "%");
         }
-        
-        console.error("Upload error:", error.name, error.message, error);
-      }
-    });
+      };
+      
+      xhr.open("POST", url, true);
+      
+      // Let browser set Content-Type with boundary for multipart/form-data
+      // Don't set it manually for FormData
+      
+      console.log("🚀 Sending request to:", url);
+      xhr.send(formData);
+    }
 
     function showLoader() {
       submitBtn.classList.add('loading');
       submitBtn.disabled = true;
+      submitBtn.textContent = 'Uploading...';
       loaderOverlay.classList.add('active');
     }
 
     function hideLoader() {
       submitBtn.classList.remove('loading');
       submitBtn.disabled = false;
+      submitBtn.textContent = 'Upload Resume';
       loaderOverlay.classList.remove('active');
     }
 
@@ -207,7 +242,7 @@
       popup.classList.toggle('error', isError);
       popup.classList.toggle('processing', isProcessing);
       popup.classList.add("show");
-      setTimeout(() => popup.classList.remove("show"), 4000);
+      setTimeout(() => popup.classList.remove("show"), isProcessing ? 60000 : 5000); // Keep processing message visible longer
     }
   </script>
 </body>
