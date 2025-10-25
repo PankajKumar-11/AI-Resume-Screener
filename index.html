@@ -195,10 +195,15 @@
       
       xhr.onerror = function() {
         hideLoader();
+        console.error("❌ XHR onerror fired");
         console.error("❌ Network error - Status:", xhr.status, "StatusText:", xhr.statusText);
         console.error("❌ ReadyState:", xhr.readyState);
         console.error("❌ Response:", xhr.responseText);
-        showPopup("⚠️ Network error. Please check your internet connection and try again.", true);
+        console.error("❌ ResponseURL:", xhr.responseURL);
+        console.error("❌ Attempting to reach:", webhookUrl);
+        
+        // More specific error for users
+        showPopup("⚠️ Cannot connect to server. This might be a CORS issue or the webhook is unreachable. Check console for details.", true);
       };
       
       xhr.ontimeout = function() {

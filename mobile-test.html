@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Webhook Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: white;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 { color: #c084fc; margin-bottom: 20px; font-size: 24px; }
+    .info { background: #2a2a4e; padding: 15px; border-radius: 8px; margin: 10px 0; }
+    button {
+      background: #c084fc;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-size: 16px;
+      width: 100%;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+    button:active { background: #a78bfa; }
+    .log {
+      background: #0f0f1e;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 5px 0;
+      font-size: 12px;
+      word-break: break-all;
+      border-left: 3px solid #666;
+    }
+    .log.success { border-left-color: #10b981; color: #10b981; }
+    .log.error { border-left-color: #ef4444; color: #ef4444; }
+    .log.info { border-left-color: #3b82f6; color: #3b82f6; }
+    #logs { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Mobile Webhook Test</h1>
+  
+  <div class="info">
+    <strong>URL:</strong><br>
+    <span id="webhookUrl" style="font-size: 11px; word-break: break-all;"></span>
+  </div>
+  
+  <div class="info">
+    <strong>Origin:</strong> <span id="origin"></span><br>
+    <strong>Device:</strong> <span id="device"></span>
+  </div>
+  
+  <button onclick="testPing()">1️⃣ Test Simple Ping</button>
+  <button onclick="testWithFile()">2️⃣ Test File Upload</button>
+  <button onclick="clearLogs()">🗑️ Clear Logs</button>
+  
+  <div id="logs"></div>
+
+  <script>
+    const webhookUrl = 'https://ai-resume-screener-production.up.railway.app/webhook/ai-resume-upload';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    document.getElementById('webhookUrl').textContent = webhookUrl;
+    document.getElementById('origin').textContent = window.location.origin;
+    document.getElementById('device').textContent = isMobile ? '📱 Mobile' : '💻 Desktop';
+    
+    function addLog(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `log ${type}`;
+      div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+      document.getElementById('logs').insertBefore(div, document.getElementById('logs').firstChild);
+    }
+    
+    function clearLogs() {
+      document.getElementById('logs').innerHTML = '';
+    }
+    
+    function testPing() {
+      addLog('Testing simple POST request...', 'info');
+      
+      const xhr = new XMLHttpRequest();
+      xhr.timeout = 30000;
+      
+      xhr.onload = function() {
+        addLog(`✅ Response received: Status ${xhr.status}`, 'success');
+        addLog(`Response: ${xhr.responseText.substring(0, 200)}`, 'info');
+      };
+      
+      xhr.onerror = function() {
+        addLog(`❌ Network Error - ReadyState: ${xhr.readyState}, Status: ${xhr.status}`, 'error');
+        addLog(`This is likely a CORS error if status is 0`, 'error');
+      };
+      
+      xhr.ontimeout = function() {
+        addLog(`⏱️ Request timeout after 30 seconds`, 'error');
+      };
+      
+      try {
+        xhr.open('POST', webhookUrl, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({ test: 'ping', mobile: isMobile }));
+        addLog('📤 Request sent', 'info');
+      } catch (e) {
+        addLog(`❌ Exception: ${e.message}`, 'error');
+      }
+    }
+    
+    function testWithFile() {
+      addLog('Testing file upload...', 'info');
+      
+      // Create a dummy file
+      const blob = new Blob(['Test resume content'], { type: 'text/plain' });
+      const file = new File([blob], 'test-resume.txt', { type: 'text/plain' });
+      
+      const formData = new FormData();
+      formData.append('name', 'Test User Mobile');
+      formData.append('email', 'test-mobile@example.com');
+      formData.append('resume', file);
+      
+      addLog(`File created: ${file.name} (${file.size} bytes)`, 'info');
+      
+      const xhr = new XMLHttpRequest();
+      xhr.timeout = 60000;
+      
+      xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+          const percent = (e.loaded / e.total * 100).toFixed(1);
+          addLog(`📊 Upload progress: ${percent}%`, 'info');
+        }
+      };
+      
+      xhr.onload = function() {
+        addLog(`✅ Upload complete: Status ${xhr.status}`, 'success');
+        addLog(`Response: ${xhr.responseText.substring(0, 200)}`, 'info');
+        addLog(`Response headers: ${xhr.getAllResponseHeaders()}`, 'info');
+      };
+      
+      xhr.onerror = function() {
+        addLog(`❌ Upload failed - ReadyState: ${xhr.readyState}, Status: ${xhr.status}`, 'error');
+        if (xhr.status === 0) {
+          addLog(`❌ CORS ERROR: Server is not allowing requests from ${window.location.origin}`, 'error');
+          addLog(`Railway webhook must have CORS headers configured`, 'error');
+        }
+      };
+      
+      xhr.ontimeout = function() {
+        addLog(`⏱️ Upload timeout after 60 seconds`, 'error');
+      };
+      
+      try {
+        xhr.open('POST', webhookUrl, true);
+        xhr.send(formData);
+        addLog('📤 File upload started', 'info');
+      } catch (e) {
+        addLog(`❌ Exception: ${e.message}`, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
