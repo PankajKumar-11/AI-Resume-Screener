@@ -152,17 +152,55 @@
       }
 
       // Debug logs
+      console.log("=== UPLOAD START ===");
       console.log("📱 Device:", isMobile ? "Mobile" : "Desktop");
+      console.log("🌐 User Agent:", navigator.userAgent);
       console.log("🔗 Using webhook URL:", webhookUrl);
       console.log("📍 Environment:", window.APP_CONFIG?.env);
       console.log("🌐 Hostname:", location.hostname);
       console.log("🌐 Origin:", window.location.origin);
+      console.log("🌐 Protocol:", location.protocol);
       console.log("📋 All URLs:", window.APP_CONFIG?.urls);
       console.log("📄 File:", file.name, "Type:", file.type, "Size:", (file.size / 1024).toFixed(2), "KB");
+      console.log("📄 File lastModified:", new Date(file.lastModified).toISOString());
+      
+      // Log FormData contents before sending
+      console.log("📦 FormData contents:");
+      for (let pair of formData.entries()) {
+        if (pair[1] instanceof File) {
+          console.log(`  - ${pair[0]}: File(name="${pair[1].name}", size=${pair[1].size}, type="${pair[1].type}")`);
+        } else {
+          console.log(`  - ${pair[0]}: "${pair[1]}"`);
+        }
+      }
 
       // Show loader with submission message
       showLoader();
       showPopup("📤 Resume submitted! Please wait while we process your application...", false, true);
+      
+      // Check network connectivity first
+      if (!navigator.onLine) {
+        hideLoader();
+        showPopup("⚠️ No internet connection detected. Please check your connection and try again.", true);
+        console.error("❌ navigator.onLine is false - no internet connection");
+        return;
+      }
+      
+      console.log("✅ Network online check passed");
+      
+      // Test if we can read the file (mobile-specific check)
+      if (window.FileReader && file.size > 0) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          console.log("✅ FileReader test passed - file is readable");
+          console.log("   First 100 bytes:", e.target.result.substring(0, 100));
+        };
+        reader.onerror = function(e) {
+          console.error("❌ FileReader error:", e);
+        };
+        // Read just the first 1KB to test
+        reader.readAsText(file.slice(0, 1024));
+      }
       
       // Use XMLHttpRequest for better mobile compatibility
       const xhr = new XMLHttpRequest();
@@ -195,15 +233,32 @@
       
       xhr.onerror = function() {
         hideLoader();
-        console.error("❌ XHR onerror fired");
-        console.error("❌ Network error - Status:", xhr.status, "StatusText:", xhr.statusText);
-        console.error("❌ ReadyState:", xhr.readyState);
-        console.error("❌ Response:", xhr.responseText);
-        console.error("❌ ResponseURL:", xhr.responseURL);
-        console.error("❌ Attempting to reach:", webhookUrl);
+        console.error("=== XHR ERROR DETAILS ===");
+        console.error("❌ XHR.onerror fired");
+        console.error("   ReadyState:", xhr.readyState);
+        console.error("   Status:", xhr.status);
+        console.error("   StatusText:", xhr.statusText);
+        console.error("   ResponseURL:", xhr.responseURL);
+        console.error("   ResponseType:", xhr.responseType);
+        console.error("   Response:", xhr.response);
+        console.error("   ResponseText:", xhr.responseText);
+        console.error("   Timeout:", xhr.timeout);
+        console.error("   Target URL:", webhookUrl);
+        console.error("   Origin:", window.location.origin);
+        console.error("   Protocol:", window.location.protocol);
+        console.error("   Is HTTPS:", webhookUrl.startsWith('https://'));
+        console.error("   Navigator online:", navigator.onLine);
         
-        // More specific error for users
-        showPopup("⚠️ Cannot connect to server. This might be a CORS issue or the webhook is unreachable. Check console for details.", true);
+        // Check if it's a CORS error (status 0) or network error
+        if (xhr.status === 0 && xhr.readyState === 4) {
+          console.error("❌ Likely CORS or Network Error (status 0, readyState 4)");
+          showPopup("⚠️ Cannot connect to server. Possible CORS or network firewall issue on mobile.", true);
+        } else if (xhr.status === 0) {
+          console.error("❌ Request failed before completion (status 0)");
+          showPopup("⚠️ Upload failed to start. Check if your mobile network allows the connection.", true);
+        } else {
+          showPopup("⚠️ Network error. Please check your internet connection and try again.", true);
+        }
       };
       
       xhr.ontimeout = function() {
