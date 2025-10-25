@@ -18,9 +18,11 @@
   const env = ['local', 'prod', 'test'].includes(qpEnv) ? qpEnv : defaultEnv;
 
   // Define URLs (fill these with real values locally using the helper script)
+  // Prefer same-origin Netlify Function to avoid CORS issues on mobile; fall back to Railway if needed
+  const sameOriginFunction = `${location.origin}/.netlify/functions/upload`;
   const urls = {
-    local: 'https://ai-resume-screener-production.up.railway.app/webhook/ai-resume-upload',
-    prod: 'https://ai-resume-screener-production.up.railway.app/webhook/ai-resume-upload',
+    local: sameOriginFunction,
+    prod: sameOriginFunction,
     test: 'YOUR_KEY_VALUE',
   };
 

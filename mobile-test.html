@@ -62,7 +62,7 @@
   <div id="logs"></div>
 
   <script>
-    const webhookUrl = 'https://ai-resume-screener-production.up.railway.app/webhook/ai-resume-upload';
+    const webhookUrl = `${window.location.origin}/.netlify/functions/upload`;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     document.getElementById('webhookUrl').textContent = webhookUrl;

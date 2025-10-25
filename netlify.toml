@@ -1,0 +1,10 @@
+[build]
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = []
+
+# Optional: increase function timeout for large uploads
+#[functions.upload]
+#  timeout = 20
