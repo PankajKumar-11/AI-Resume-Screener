@@ -119,7 +119,7 @@
     // Detect if mobile
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    form.addEventListener("submit", async function (e) {
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
       const formData = new FormData(form);
       const webhookUrl = (window.APP_CONFIG && window.APP_CONFIG.webhookUrl) || "YOUR_KEY_VALUE";
@@ -165,17 +165,23 @@
       showPopup("📤 Resume submitted! Please wait while we process your application...", false, true);
       
       // Use XMLHttpRequest for better mobile compatibility
-      uploadWithXHR(webhookUrl, formData);
-    });
-    
-    function uploadWithXHR(url, formData) {
       const xhr = new XMLHttpRequest();
       
       // Timeout after 60 seconds (longer for mobile)
       xhr.timeout = 60000;
       
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          console.log("📡 Response received - ReadyState:", xhr.readyState, "Status:", xhr.status);
+        }
+      };
+      
       xhr.onload = function() {
         hideLoader();
+        
+        console.log("✅ XHR onload fired - Status:", xhr.status);
+        console.log("📄 Response text:", xhr.responseText);
+        console.log("📋 All response headers:", xhr.getAllResponseHeaders());
         
         if (xhr.status >= 200 && xhr.status < 300) {
           console.log("✅ Upload successful:", xhr.status, xhr.responseText);
@@ -189,13 +195,15 @@
       
       xhr.onerror = function() {
         hideLoader();
-        console.error("❌ Network error:", xhr.status, xhr.statusText);
+        console.error("❌ Network error - Status:", xhr.status, "StatusText:", xhr.statusText);
+        console.error("❌ ReadyState:", xhr.readyState);
+        console.error("❌ Response:", xhr.responseText);
         showPopup("⚠️ Network error. Please check your internet connection and try again.", true);
       };
       
       xhr.ontimeout = function() {
         hideLoader();
-        console.error("⏱️ Upload timeout");
+        console.error("⏱️ Upload timeout after 60 seconds");
         showPopup("⚠️ Upload timeout. Your connection may be slow. Please try again.", true);
       };
       
@@ -205,7 +213,7 @@
         showPopup("⚠️ Upload was cancelled. Please try again.", true);
       };
       
-      // Progress tracking (optional - for future enhancement)
+      // Progress tracking
       xhr.upload.onprogress = function(e) {
         if (e.lengthComputable) {
           const percentComplete = (e.loaded / e.total) * 100;
@@ -213,14 +221,40 @@
         }
       };
       
-      xhr.open("POST", url, true);
+      xhr.upload.onerror = function(e) {
+        console.error("❌ Upload error event:", e);
+        hideLoader();
+        showPopup("⚠️ Upload failed. Please try again.", true);
+      };
       
-      // Let browser set Content-Type with boundary for multipart/form-data
-      // Don't set it manually for FormData
-      
-      console.log("🚀 Sending request to:", url);
-      xhr.send(formData);
-    }
+      try {
+        xhr.open("POST", webhookUrl, true);
+        
+        // Don't set withCredentials for CORS unless needed
+        // xhr.withCredentials = false;
+        
+        // Let browser set Content-Type with boundary for multipart/form-data
+        // Don't set it manually for FormData
+        
+        console.log("🚀 Sending XHR request to:", webhookUrl);
+        console.log("📦 FormData entries:");
+        for (let pair of formData.entries()) {
+          if (pair[1] instanceof File) {
+            console.log("  -", pair[0], ":", pair[1].name, "(", pair[1].size, "bytes )");
+          } else {
+            console.log("  -", pair[0], ":", pair[1]);
+          }
+        }
+        
+        xhr.send(formData);
+        console.log("✅ XHR send() called successfully");
+        
+      } catch (error) {
+        console.error("❌ Exception during XHR send:", error);
+        hideLoader();
+        showPopup("⚠️ Failed to send request. Please try again.", true);
+      }
+    });
 
     function showLoader() {
       submitBtn.classList.add('loading');
