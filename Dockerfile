@@ -2,13 +2,21 @@ FROM n8nio/n8n:latest
 
 USER root
 
-# Create a writable subdirectory inside Railway’s mounted volume
+# Create a writable directory for persistence
 RUN mkdir -p /data/files && chmod -R 777 /data/files
 
-# Set n8n user folder to that writable path
+# Set n8n user folder
 ENV N8N_USER_FOLDER=/data/files
+
+# ✅ Add your production webhook + CORS configuration
+ENV N8N_WEBHOOK_URL=https://ai-resume-screener-production.up.railway.app/
+ENV N8N_EDITOR_BASE_URL=https://ai-resume-screener-production.up.railway.app
+ENV N8N_CORS_ALLOW_ORIGINS=https://ai-resume-screenerr.netlify.app
+ENV N8N_PROTOCOL=https
+ENV N8N_HOST=0.0.0.0
+ENV N8N_PORT=5678
 
 EXPOSE 5678
 
-# Run as root permanently so we can always write inside mounted volumes
+# Run as root for writing permissions (since we need persistence)
 CMD ["n8n", "start"]
