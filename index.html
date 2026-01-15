@@ -14,7 +14,9 @@
   <link rel="stylesheet" href="screener.css" />
   <script src="galaxy.js" defer></script>
 </head>
-<div style="
+
+<body data-galaxy data-stars="250" data-speed="0.4" data-color-scheme="purple">
+  <div style="
 position:fixed;
 bottom:10px;
 right:10px;
@@ -27,8 +29,6 @@ opacity:0.8;
 z-index:9999;">
 Live backend available during demo sessions
 </div>
-
-<body data-galaxy data-stars="250" data-speed="0.4" data-color-scheme="purple">
   <!-- Top Left Brand -->
   <div class="site-brand">
     <span class="brand-text">ARS</span>
@@ -233,7 +233,7 @@ Live backend available during demo sessions
         }
       };
 
-      xhr.onload = function() {
+xhr.onload = function() {
   hideLoader();
 
   console.log("📡 Response received:", xhr.status);
@@ -253,26 +253,15 @@ Live backend available during demo sessions
     setTimeout(() => {
       showPopup("✅ Resume processed successfully (Demo Result)", false);
       form.reset();
-    }, 1500);
+    }, 4000);
   }
 };
 
 
       xhr.onerror = function () {
         hideLoader();
-        xhr.onerror = function () {
-          hideLoader();
 
-          console.warn("⚡ Backend offline — demo mode activated");
-
-          showPopup("⚡ Demo Mode: Backend offline. Showing sample AI result.", false);
-
-          setTimeout(() => {
-            showPopup("✅ Resume processed successfully (Demo Result)", false);
-            form.reset();
-          }, 1500);
-        };
-
+        console.warn("⚡ Backend offline — demo mode activated");
 
         // Check if it's a CORS error (status 0) or network error
         if (xhr.status === 0 && xhr.readyState === 4) {
@@ -282,7 +271,12 @@ Live backend available during demo sessions
           console.error("❌ Request failed before completion (status 0)");
           showPopup("⚠️ Upload failed to start. Check if your mobile network allows the connection.", true);
         } else {
-          showPopup("⚠️ Network error. Please check your internet connection and try again.", true);
+          showPopup("⚡ Demo Mode: Backend offline. Showing sample AI result.", false);
+
+          setTimeout(() => {
+            showPopup("✅ Resume processed successfully (Demo Result)", false);
+            form.reset();
+          }, 4000);
         }
       };
 
