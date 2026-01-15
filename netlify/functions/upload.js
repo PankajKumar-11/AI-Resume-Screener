@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+
 
 const DEFAULT_TARGET = "https://posttoxic-zanily-lara.ngrok-free.dev/webhook/ai-resume-upload";
 
