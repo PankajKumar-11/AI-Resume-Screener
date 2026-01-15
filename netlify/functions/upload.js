@@ -1,68 +1,77 @@
-// Netlify Function proxy to forward uploads to Railway (n8n webhook)
-// Handles CORS (including OPTIONS) and binary multipart bodies
+const fetch = require("node-fetch");
 
-const DEFAULT_TARGET = 'https://ai-resume-screener-production.up.railway.app/webhook/ai-resume-upload';
+const DEFAULT_TARGET = "https://posttoxic-zanily-lara.ngrok-free.dev/webhook/ai-resume-upload";
 
 function corsHeaders(origin) {
-  const allowOrigin = origin || '*';
   return {
-    'Access-Control-Allow-Origin': allowOrigin,
-    'Vary': 'Origin',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Accept,Content-Type,Content-Length,Authorization,Origin,Referer,User-Agent,Cache-Control,X-Requested-With',
-    'Access-Control-Allow-Credentials': 'true',
+    "Access-Control-Allow-Origin": origin || "*",
+    "Access-Control-Allow-Methods": "POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
   };
 }
 
-exports.handler = async (event, context) => {
-  const origin = event.headers?.origin || event.headers?.Origin || '*';
+exports.handler = async (event) => {
+  const origin = event.headers.origin || "*";
 
-  // Handle CORS preflight
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: corsHeaders(origin), body: '' };
+  // CORS
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders(origin),
+      body: "",
+    };
   }
 
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: corsHeaders(origin), body: 'Method Not Allowed' };
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders(origin),
+      body: "OK",
+    };
   }
+
+  const targetUrl = DEFAULT_TARGET;
 
   try {
-    const targetUrl = process.env.RAILWAY_WEBHOOK_URL || DEFAULT_TARGET;
+    // Timeout after 5 seconds
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
 
-    const contentType = event.headers['content-type'] || event.headers['Content-Type'] || 'application/octet-stream';
-    const isBase64 = !!event.isBase64Encoded;
-    const rawBody = event.body || '';
-    const bodyBuffer = Buffer.from(rawBody, isBase64 ? 'base64' : 'utf8');
-
-    const resp = await fetch(targetUrl, {
-      method: 'POST',
+    const response = await fetch(targetUrl, {
+      method: "POST",
+      body: event.body,
       headers: {
-        'Content-Type': contentType,
-        'Content-Length': String(bodyBuffer.length),
-        'x-proxy-via': 'netlify-function',
-        'x-forwarded-host': event.headers.host || '',
-        'x-forwarded-origin': origin || '',
+        "Content-Type": event.headers["content-type"] || "application/octet-stream",
       },
-      body: bodyBuffer,
+      signal: controller.signal,
     });
 
-    const text = await resp.text();
-    const headers = Object.fromEntries(resp.headers);
+    clearTimeout(timeout);
 
-    return {
-      statusCode: resp.status,
-      headers: {
-        ...corsHeaders(origin),
-        'content-type': headers['content-type'] || 'text/plain; charset=utf-8',
-      },
-      body: text,
-    };
+    // If backend responds correctly
+    if (response.ok) {
+      const text = await response.text();
+      return {
+        statusCode: 200,
+        headers: corsHeaders(origin),
+        body: text,
+      };
+    }
+
+    // Backend error → demo mode
+    throw new Error("Backend error");
+
   } catch (err) {
-    console.error('Upload proxy error:', err);
+    console.log("Demo fallback active");
+
+    // ALWAYS return 200 demo response
     return {
-      statusCode: 502,
+      statusCode: 200,
       headers: corsHeaders(origin),
-      body: JSON.stringify({ error: 'Bad Gateway', detail: String(err && err.message || err) }),
+      body: JSON.stringify({
+        demo: true,
+        message: "Backend offline — demo mode active",
+      }),
     };
   }
 };

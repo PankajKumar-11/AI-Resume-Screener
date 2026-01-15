@@ -1,8 +1,8 @@
 /*
   Runtime config for AI Resume Screener frontend.
-  - Picks webhook URL by env (local|prod|test)
-  - Supports overrides via query params: ?env=prod&webhook=https%3A%2F%2Fexample.com%2Fhook
-  - Safe for commit: placeholders are YOUR_KEY_VALUE.
+  - local  → direct n8n webhook-test (localhost)
+  - prod   → Netlify Function proxy
+  - test   → optional override
 */
 (function () {
   function getQueryParam(name) {
@@ -10,23 +10,29 @@
     return params.get(name);
   }
 
-  // Decide env: query param wins; else localhost/file -> local; otherwise prod
   const qpEnv = (getQueryParam('env') || '').toLowerCase();
-  const defaultEnv = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:')
-    ? 'local'
-    : 'prod';
+  const defaultEnv =
+    location.protocol === 'file:' ||
+    location.hostname === 'localhost' ||
+    location.hostname === '127.0.0.1'
+      ? 'local'
+      : 'prod';
+
   const env = ['local', 'prod', 'test'].includes(qpEnv) ? qpEnv : defaultEnv;
 
-  // Define URLs (fill these with real values locally using the helper script)
-  // Prefer same-origin Netlify Function to avoid CORS issues on mobile; fall back to Railway if needed
-  const sameOriginFunction = `${location.origin}/.netlify/functions/upload`;
+  // 🔹 URLs per environment
   const urls = {
-    local: sameOriginFunction,
-    prod: sameOriginFunction,
+    // LOCAL → direct n8n test webhook
+    local: 'http://localhost:5678/webhook-test/ai-resume-upload',
+
+    // PROD → Netlify Function proxy
+    prod: `${location.origin}/.netlify/functions/upload`,
+
+    // Optional
     test: 'YOUR_KEY_VALUE',
   };
 
-  // Allow a full override via ?webhook=<url>
+  // Allow override: ?webhook=https://example.com/hook
   const override = getQueryParam('webhook');
   const webhookUrl = override || urls[env];
 
@@ -35,4 +41,6 @@
     urls,
     webhookUrl,
   };
+
+  console.log('[APP_CONFIG]', window.APP_CONFIG);
 })();
