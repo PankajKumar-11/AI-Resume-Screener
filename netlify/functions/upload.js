@@ -2,7 +2,8 @@
 // Supports binary multipart + role forwarding + CORS
 
 const DEFAULT_TARGET =
-  "https://posttoxic-zanily-lara.ngrok-free.dev/webhook/ai-resume-upload";
+  //"https://posttoxic-zanily-lara.ngrok-free.dev/webhook/ai-resume-upload";
+  "https://ai-resume-screener-production.up.railway.app";
 
 function corsHeaders(origin) {
   const allowOrigin = origin || "*";
