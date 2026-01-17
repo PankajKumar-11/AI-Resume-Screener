@@ -3,7 +3,7 @@
 
 const DEFAULT_TARGET =
   //"https://posttoxic-zanily-lara.ngrok-free.dev/webhook/ai-resume-upload";
-  "https://ai-resume-screener-production.up.railway.app";
+  "https://ai-resume-screener-production.up.railway.app/webhook/ai-resume-upload";
 
 function corsHeaders(origin) {
   const allowOrigin = origin || "*";
