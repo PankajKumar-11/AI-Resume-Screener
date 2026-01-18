@@ -27,8 +27,8 @@ border-radius:6px;
 font-size:12px;
 opacity:0.8;
 z-index:9999;">
-Live backend available during demo sessions
-</div>
+    Live backend available during demo sessions
+  </div>
   <!-- Top Left Brand -->
   <div class="site-brand">
     <span class="brand-text">ARS</span>
@@ -54,36 +54,36 @@ Live backend available during demo sessions
         <input type="email" name="email" placeholder="Email Address" required />
       </div>
 
-<div class="input-group">
-  <div class="custom-select" id="roleSelect">
-    <div class="select-trigger">Select Job Role </div>
-    <div class="select-options">
-      <div class="option">Software Engineer</div>
-      <div class="option">Frontend Developer</div>
-      <div class="option">Backend Developer</div>
-      <div class="option">Full Stack Developer</div>
-      <div class="option">Data Scientist</div>
-      <div class="option">Data Analyst</div>
-      <div class="option">AI Engineer</div>
-      <div class="option">Machine Learning Engineer</div>
-      <div class="option">MLOps Engineer</div>
-      <div class="option">Prompt Engineer</div>
-      <div class="option">AI Automation Engineer</div>
-      <div class="option">DevOps Engineer</div>
-      <div class="option">Cloud Engineer</div>
-      <div class="option">Cybersecurity Analyst</div>
-      <div class="option">Mobile App Developer</div>
-      <div class="option">UI/UX Designer</div>
-      <div class="option">Product Manager</div>
-      <div class="option">QA Automation Engineer</div>
-      <div class="option">Blockchain Developer</div>
-      <div class="option">AR/VR Developer</div>
-    </div>
-  </div>
+      <div class="input-group">
+        <div class="custom-select" id="roleSelect">
+          <div class="select-trigger">Select Job Role </div>
+          <div class="select-options">
+            <div class="option">Software Engineer</div>
+            <div class="option">Frontend Developer</div>
+            <div class="option">Backend Developer</div>
+            <div class="option">Full Stack Developer</div>
+            <div class="option">Data Scientist</div>
+            <div class="option">Data Analyst</div>
+            <div class="option">AI Engineer</div>
+            <div class="option">Machine Learning Engineer</div>
+            <div class="option">MLOps Engineer</div>
+            <div class="option">Prompt Engineer</div>
+            <div class="option">AI Automation Engineer</div>
+            <div class="option">DevOps Engineer</div>
+            <div class="option">Cloud Engineer</div>
+            <div class="option">Cybersecurity Analyst</div>
+            <div class="option">Mobile App Developer</div>
+            <div class="option">UI/UX Designer</div>
+            <div class="option">Product Manager</div>
+            <div class="option">QA Automation Engineer</div>
+            <div class="option">Blockchain Developer</div>
+            <div class="option">AR/VR Developer</div>
+          </div>
+        </div>
 
-  <!-- Hidden input to send value to backend -->
-  <input type="hidden" name="role" id="selectedRole" required>
-</div>
+        <!-- Hidden input to send value to backend -->
+        <input type="hidden" name="role" id="selectedRole" required>
+      </div>
 
 
       <div class="input-group file-upload">
@@ -265,29 +265,29 @@ Live backend available during demo sessions
         }
       };
 
-xhr.onload = function() {
-  hideLoader();
+      xhr.onload = function () {
+        hideLoader();
 
-  console.log("📡 Response received:", xhr.status);
+        console.log("📡 Response received:", xhr.status);
 
-  // REAL SUCCESS
-  if (xhr.status >= 200 && xhr.status < 300) {
-    console.log("✅ Upload successful:", xhr.responseText);
-    showPopup("✅ Resume submitted successfully! You will be informed through mail.", false);
-    form.reset();
-  } 
-  // DEMO MODE (503, 404, 500, etc)
-  else {
-    console.warn("⚡ Backend unavailable — switching to demo mode");
+        // REAL SUCCESS
+        if (xhr.status >= 200 && xhr.status < 300) {
+          console.log("✅ Upload successful:", xhr.responseText);
+          showPopup("✅ Resume submitted successfully! You will be informed through mail.", false);
+          form.reset();
+        }
+        // DEMO MODE (503, 404, 500, etc)
+        else {
+          console.warn("⚡ Backend unavailable — switching to demo mode");
 
-    showPopup("⚡ Demo Mode: Live backend unavailable. Showing sample result.", false);
+          showPopup("⚡ Demo Mode: Live backend unavailable. Showing sample result.", false);
 
-    setTimeout(() => {
-      showPopup("✅ Resume processed successfully (Demo Result)", false);
-      form.reset();
-    }, 4000);
-  }
-};
+          setTimeout(() => {
+            showPopup("✅ Resume processed successfully (Demo Result)", false);
+            form.reset();
+          }, 4000);
+        }
+      };
 
 
       xhr.onerror = function () {
@@ -391,28 +391,34 @@ xhr.onload = function() {
     }
 
     const customSelect = document.getElementById("roleSelect");
-const trigger = customSelect.querySelector(".select-trigger");
-const options = customSelect.querySelectorAll(".option");
-const hiddenInput = document.getElementById("selectedRole");
+    const trigger = customSelect.querySelector(".select-trigger");
+    const options = customSelect.querySelectorAll(".option");
+    const hiddenInput = document.getElementById("selectedRole");
 
-trigger.addEventListener("click", () => {
-  customSelect.classList.toggle("open");
-});
+    trigger.addEventListener("click", () => {
+      customSelect.classList.toggle("open");
+    });
 
-options.forEach(option => {
-  option.addEventListener("click", () => {
-    trigger.textContent = option.textContent;
-    hiddenInput.value = option.textContent;
-    customSelect.classList.remove("open");
-  });
-});
+    options.forEach(option => {
+      option.addEventListener("click", () => {
+        trigger.textContent = option.textContent;
+        hiddenInput.value = option.textContent;
 
-// Close when clicking outside
-document.addEventListener("click", e => {
-  if (!customSelect.contains(e.target)) {
-    customSelect.classList.remove("open");
-  }
-});
+        // Add selected style
+        customSelect.classList.add("selected");
+
+        // Close dropdown
+        customSelect.classList.remove("open");
+
+      });
+    });
+
+    // Close when clicking outside
+    document.addEventListener("click", e => {
+      if (!customSelect.contains(e.target)) {
+        customSelect.classList.remove("open");
+      }
+    });
 
 
   </script>

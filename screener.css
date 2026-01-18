@@ -1008,3 +1008,14 @@ footer strong {
   background: rgba(192, 132, 252, 0.2);
 }
 
+.custom-select.selected .select-trigger {
+  background: #eef5ff;
+  color: #111827;
+  border-color: #c084fc;
+  font-weight: 500;
+}
+
+/* Arrow color after selection */
+.custom-select.selected .select-trigger::after {
+  color: #7c3aed;
+}
