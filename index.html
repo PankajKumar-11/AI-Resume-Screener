@@ -110,7 +110,58 @@ z-index:9999;">
    <script src="config.js"></script>
 
 <script>
-// ================= FORM CORE =================
+// ================= CUSTOM CURSOR =================
+
+const cursor = document.createElement("div");
+const cursorDot = document.createElement("div");
+
+cursor.className = "cursor";
+cursorDot.className = "cursor-dot";
+
+document.body.appendChild(cursor);
+document.body.appendChild(cursorDot);
+
+let mouseX = 0, mouseY = 0;
+let cursorX = 0, cursorY = 0;
+
+document.addEventListener("mousemove", e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  cursorDot.style.left = mouseX + "px";
+  cursorDot.style.top = mouseY + "px";
+
+  // Trail effect
+  if (Math.random() > 0.75) {
+    const trail = document.createElement("div");
+    trail.className = "cursor-trail";
+    trail.style.left = mouseX + "px";
+    trail.style.top = mouseY + "px";
+    document.body.appendChild(trail);
+
+    setTimeout(() => trail.remove(), 600);
+  }
+});
+
+// Smooth follow animation
+function animateCursor() {
+  cursorX += (mouseX - cursorX) * 0.15;
+  cursorY += (mouseY - cursorY) * 0.15;
+
+  cursor.style.left = cursorX + "px";
+  cursor.style.top = cursorY + "px";
+
+  requestAnimationFrame(animateCursor);
+}
+
+animateCursor();
+
+// Hover glow effect
+document.querySelectorAll("button, input, .select-trigger").forEach(el => {
+  el.addEventListener("mouseenter", () => cursor.classList.add("hover"));
+  el.addEventListener("mouseleave", () => cursor.classList.remove("hover"));
+});
+
 
 const form = document.getElementById("resumeForm");
 const submitBtn = form.querySelector('button[type="submit"]');
