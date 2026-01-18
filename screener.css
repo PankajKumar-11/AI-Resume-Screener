@@ -951,6 +951,7 @@ footer strong {
 .custom-select {
   position: relative;
   user-select: none;
+  transition: all 0.3s ease;
 }
 
 .select-trigger {
