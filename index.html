@@ -55,38 +55,36 @@ Live backend available during demo sessions
       </div>
 
 <div class="input-group">
-  <select name="role" required>
-    <option value="">-- Select Job Role --</option>
+  <div class="custom-select" id="roleSelect">
+    <div class="select-trigger">Select Job Role </div>
+    <div class="select-options">
+      <div class="option">Software Engineer</div>
+      <div class="option">Frontend Developer</div>
+      <div class="option">Backend Developer</div>
+      <div class="option">Full Stack Developer</div>
+      <div class="option">Data Scientist</div>
+      <div class="option">Data Analyst</div>
+      <div class="option">AI Engineer</div>
+      <div class="option">Machine Learning Engineer</div>
+      <div class="option">MLOps Engineer</div>
+      <div class="option">Prompt Engineer</div>
+      <div class="option">AI Automation Engineer</div>
+      <div class="option">DevOps Engineer</div>
+      <div class="option">Cloud Engineer</div>
+      <div class="option">Cybersecurity Analyst</div>
+      <div class="option">Mobile App Developer</div>
+      <div class="option">UI/UX Designer</div>
+      <div class="option">Product Manager</div>
+      <div class="option">QA Automation Engineer</div>
+      <div class="option">Blockchain Developer</div>
+      <div class="option">AR/VR Developer</div>
+    </div>
+  </div>
 
-    <option value="Software Engineer">Software Engineer</option>
-    <option value="Frontend Developer">Frontend Developer</option>
-    <option value="Backend Developer">Backend Developer</option>
-    <option value="Full Stack Developer">Full Stack Developer</option>
-
-    <option value="Data Scientist">Data Scientist</option>
-    <option value="Data Analyst">Data Analyst</option>
-
-    <option value="AI Engineer">AI Engineer</option>
-    <option value="Machine Learning Engineer">Machine Learning Engineer</option>
-    <option value="MLOps Engineer">MLOps Engineer</option>
-    <option value="Prompt Engineer">Prompt Engineer</option>
-    <option value="AI Automation Engineer">AI Automation Engineer</option>
-
-    <option value="DevOps Engineer">DevOps Engineer</option>
-    <option value="Cloud Engineer">Cloud Engineer</option>
-    <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
-
-    <option value="Mobile App Developer">Mobile App Developer</option>
-    <option value="UI/UX Designer">UI/UX Designer</option>
-
-    <option value="Product Manager">Product Manager</option>
-    <option value="QA Automation Engineer">QA Automation Engineer</option>
-
-    <option value="Blockchain Developer">Blockchain Developer</option>
-    <option value="AR/VR Developer">AR/VR Developer</option>
-
-  </select>
+  <!-- Hidden input to send value to backend -->
+  <input type="hidden" name="role" id="selectedRole" required>
 </div>
+
 
       <div class="input-group file-upload">
         <input type="file" id="resumeFile" name="resume"
@@ -391,6 +389,32 @@ xhr.onload = function() {
       popup.classList.add("show");
       setTimeout(() => popup.classList.remove("show"), isProcessing ? 60000 : 5000); // Keep processing message visible longer
     }
+
+    const customSelect = document.getElementById("roleSelect");
+const trigger = customSelect.querySelector(".select-trigger");
+const options = customSelect.querySelectorAll(".option");
+const hiddenInput = document.getElementById("selectedRole");
+
+trigger.addEventListener("click", () => {
+  customSelect.classList.toggle("open");
+});
+
+options.forEach(option => {
+  option.addEventListener("click", () => {
+    trigger.textContent = option.textContent;
+    hiddenInput.value = option.textContent;
+    customSelect.classList.remove("open");
+  });
+});
+
+// Close when clicking outside
+document.addEventListener("click", e => {
+  if (!customSelect.contains(e.target)) {
+    customSelect.classList.remove("open");
+  }
+});
+
+
   </script>
 </body>
 
