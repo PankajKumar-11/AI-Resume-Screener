@@ -275,6 +275,16 @@ z-index:9999;">
           console.log("✅ Upload successful:", xhr.responseText);
           showPopup("✅ Resume submitted successfully! You will be informed through mail.", false);
           form.reset();
+
+          // Reset custom dropdown UI
+          const roleTrigger = document.querySelector(".select-trigger");
+          const customSelectBox = document.getElementById("roleSelect");
+          const hiddenRoleInput = document.getElementById("selectedRole");
+
+          roleTrigger.textContent = "-- Select Job Role --";
+          customSelectBox.classList.remove("selected");
+          hiddenRoleInput.value = "";
+
         }
         // DEMO MODE (503, 404, 500, etc)
         else {
