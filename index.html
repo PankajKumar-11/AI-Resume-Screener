@@ -219,18 +219,18 @@ form.addEventListener("submit", function (e) {
   const file = fileInput.files[0];
 
   if (!selectedRole) {
-    showPopup("⚠️ Please select job role", true);
+   showPopup("⚠️ Please select a job role before submitting your resume.", true);
     return;
   }
 
   if (!file) {
-    showPopup("⚠️ Upload resume file", true);
+    showPopup("⚠️ Please select a resume file to upload.", true);
     return;
   }
 
   const maxSize = 10 * 1024 * 1024;
   if (file.size > maxSize) {
-    showPopup("⚠️ File must be under 10MB", true);
+    showPopup("⚠️ File is too large. Please upload a resume smaller than 10MB.", true);
     return;
   }
 
@@ -239,7 +239,7 @@ form.addEventListener("submit", function (e) {
   const formData = new FormData(form);
 
   showLoader();
-  showPopup("📤 Uploading resume...", false, true);
+  showPopup("📤 Resume submitted! Please wait while we process your application...", false, true);
 
   const xhr = new XMLHttpRequest();
   xhr.timeout = 60000;
@@ -250,7 +250,7 @@ form.addEventListener("submit", function (e) {
 
     if (xhr.status >= 200 && xhr.status < 300) {
 
-      showPopup("✅ Resume submitted successfully!", false);
+      showPopup("✅ Resume submitted successfully! You will be informed through mail.", false);
       resetFormUI();
 
     } else {
@@ -268,7 +268,7 @@ form.addEventListener("submit", function (e) {
   xhr.ontimeout = function () {
 
     hideLoader();
-    showPopup("⚠️ Upload timeout. Try again.", true);
+    showPopup("⚠️ Upload timeout. Your connection may be slow. Please try again.", true);
   };
 
   xhr.open("POST", webhookUrl, true);
@@ -279,10 +279,10 @@ form.addEventListener("submit", function (e) {
 
 function demoFallback() {
 
-  showPopup("⚡ Demo mode activated", false);
+ showPopup("⚡ Demo Mode: Live backend unavailable. Showing sample result.", false);
 
   setTimeout(() => {
-    showPopup("✅ Resume processed (Demo)", false);
+    showPopup("✅ Resume processed successfully (Demo Result)", false);
     resetFormUI();
   }, 3500);
 }
