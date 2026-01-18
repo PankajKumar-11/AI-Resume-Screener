@@ -23,7 +23,7 @@
   // 🔹 URLs per environment
   const urls = {
     // LOCAL → direct n8n test webhook
-    local: 'http://localhost:5678/webhook-test/ai-resume-upload',
+    local: '://localhost:5678/webhook-test/ai-resume-upload',
 
     // PROD → Netlify Function proxy
     prod: `${location.origin}/.netlify/functions/upload`,
