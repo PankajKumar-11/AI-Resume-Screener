@@ -77,7 +77,7 @@ With AI Resume Screener:
 
 ## 🚀 Live Demo
 
-**Try it now:** [AI Resume Screener Live Demo](https://ai-resume-screenerr.netlify.app/)
+**Try it now:** [AI Resume Screener Live Demo](https://logiclane.online/)
 
 ### How to Test:
 1. Visit the live demo link
